@@ -286,6 +286,9 @@ def _process_ntem_access_file(
 
     data = data[data[ZONE_ID_COLUMN] != INVALID_ZONE_ID]
 
+    mapped_zone = data[ZONE_ID_COLUMN].map(id_substitution)
+    data[ZONE_ID_COLUMN] = mapped_zone.fillna(data[ZONE_ID_COLUMN]).astype(int)
+
     id_columns = [METADATA_ID_COLUMN, ZONE_SYSTEM_ID_COLUMN] + id_columns
 
     data = data.melt(
@@ -293,7 +296,7 @@ def _process_ntem_access_file(
         var_name="year",
         value_name="value",
     )
-    data["zone_id"] = data["zone_id"].replace(id_substitution)
+    data["year"] = data["year"].astype(int)
 
     LOG.debug("Writing data to database")
     data.to_sql(out_table.__tablename__, connection, if_exists="append", index=False)
